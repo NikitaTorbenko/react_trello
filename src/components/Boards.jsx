@@ -1,18 +1,23 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
+import Task from "./Task";
 
-const Boards = ({ boards, setBoards, removeItem, removeBoard, isMenyatble }) => {
+const Boards = ({ boards, setBoards, removeItem, removeBoard, editItem }) => {
   const [currentBoard, setCurrentBoard] = useState(null);
   const [currentItem, setCurrentItem] = useState(null);
 
   function dragOverHandler(e) {
     e.preventDefault();
-    if (e.target.className === "item") {
-      e.target.style.boxShadow = "0 2px 3px gray";
-    }
+    // if (e.target.className === "item") {
+    //   e.target.style.boxShadow = "0 2px 3px gray";
+    // }
   }
 
   function dragLeaveHandler(e) {
-    e.target.style.boxShadow = "none";
+    // e.target.style.boxShadow = "none";
+  }
+
+  function dragEndHandler(e) {
+    // e.target.style.boxShadow = "none";
   }
 
   function dragStartHandler(e, board, item) {
@@ -20,12 +25,7 @@ const Boards = ({ boards, setBoards, removeItem, removeBoard, isMenyatble }) => 
     setCurrentItem(item);
   }
 
-  function dragEndHandler(e) {
-    e.target.style.boxShadow = "none";
-  }
-
   function dropHandler(e, board, item) {
-    e.preventDefault();
     const currentIndex = currentBoard.items.indexOf(currentItem);
     currentBoard.items.splice(currentIndex, 1);
     const dropIndex = board.items.indexOf(item);
@@ -60,97 +60,114 @@ const Boards = ({ boards, setBoards, removeItem, removeBoard, isMenyatble }) => 
     );
   }
 
-  // my drag
+  //================================================
 
-  const [currentCard, setCurrentCard] = useState(null);
+  const [isItem, setIsItem] = useState(false);
 
-  function dragStartHandlerCard(e, card) {
-    setCurrentCard(card);
-  }
+  const [isBoard, setIsBoard] = useState(true);
 
-  function dragLeaveHandlerCard(e) {
-    e.target.style.background = "none";
-  }
-
-  function dragEndHandlerCard(e) {
-    e.target.style.background = "none";
-  }
-
-  function dragOverHandlerCard(e) {
-    e.preventDefault();
-    e.target.style.background = "lightgray";
-  }
-
-  function dropCardHandlerCard(e, card) {
-    e.preventDefault();
-    setBoards((prev) =>
-      [...prev].map((c) => {
-        if (c.id === card.id) {
-          return { ...c, order: currentCard.order };
-        }
-        if (c.id === currentCard.id) {
-          return { ...c, order: card.order };
-        }
-        return c;
-      })
-    );
-    e.target.style.background = "none";
-  }
-
-  const sortCards = (a, b) => {
-    if (!isMenyatble){
-      if (a.order > b.order) {
-        return 1;
-      } else {
-        return -1;
-      }
+  const mouseEnter = (e, board, item) => {
+    if (board && !item) {
+      setIsBoard(true);
+    } else {
+      setIsBoard(false);
     }
+
+    if (item) {
+      setIsItem(true);
+    }
+  };
+
+  const mouseLeave = (e) => {
+    setIsBoard(true);
+    setIsItem(false);
+  };
+
+  const dragEnter = (e, index) => setIsItem(false);
+
+  const dragEnterItem = (e) => setTimeout(() => setIsItem(true), 0);
+
+  const currentBoardRef = useRef(null);
+  const hoverBoardRef = useRef(null);
+
+  const dragStartHandlerCard = (e, board, indexBoard) => {
+    if (!isItem) {
+      currentBoardRef.current = {
+        indexBoard,
+        board,
+      };
+    }
+  };
+
+  const dropHandlerCard = (e, board, indexBoard) => {
+    e.preventDefault();
+    hoverBoardRef.current = {
+      indexBoard,
+      board,
+    };
+
+    setBoards((prev) => {
+      const copyBoard = [...prev];
+      copyBoard[currentBoardRef.current.indexBoard] = copyBoard.splice(
+        hoverBoardRef.current.indexBoard,
+        1,
+        currentBoardRef.current.board
+      )[0];
+
+      return copyBoard;
+    });
   };
 
   return (
     <div className="app">
-      {boards.sort(sortCards).map((board) => (
-        <div
-          onDragStart={(e) => dragStartHandlerCard(e, board)}
-          onDragLeave={(e) => dragLeaveHandlerCard(e)}
-          onDragEnd={(e) => dragEndHandlerCard(e)}
-          onDragOver={(e) => dragOverHandlerCard(e)}
-          onDrop={(e) => dropCardHandlerCard(e, board)}
-          draggable={!isMenyatble}
-          className="board"
-        >
-          <div className="board__title">{board.title}</div>
-          {board.title === "Сделано"
-            ? board.items.map((item) => (
-                <div
-                  onDragOver={(e) => dragOverHandler(e)}
-                  onDragLeave={(e) => dragLeaveHandler(e)}
-                  onDragStart={(e) => dragStartHandler(e, board, item)}
-                  onDragEnd={(e) => dragEndHandler(e)}
-                  onDrop={(e) => dropHandler(e, board, item)}
-                  draggable={isMenyatble}
-                  className="item"
-                >
-                  {item.title}{" "}
-                  <button onClick={() => removeItem(item.id)}>Удалить</button>
-                </div>
-              ))
-            : board.items.map((item) => (
-                <div
-                  onDragOver={(e) => dragOverHandler(e)}
-                  onDragLeave={(e) => dragLeaveHandler(e)}
-                  onDragStart={(e) => dragStartHandler(e, board, item)}
-                  onDragEnd={(e) => dragEndHandler(e)}
-                  onDrop={(e) => dropHandler(e, board, item)}
-                  draggable={true}
-                  className="item"
-                >
-                  {item.title}
-                </div>
-              ))}
-          <button onClick={() => removeBoard(board.id)}>Удалить доску</button>
-        </div>
-      ))}
+      {boards.map((board, index) => {
+        return (
+          <div
+            onDragStart={(e) => dragStartHandlerCard(e, board, index)}
+            draggable={true}
+            onDragEnter={(e) => dragEnter(e, index)}
+            onDrop={(e) => {
+              if (!isItem) {
+                if (isBoard) {
+                  dropHandlerCard(e, board, index);
+                } else {
+                  dropCardHandler(e, board);
+                }
+              }
+            }}
+            onDragOver={(e) => dragOverHandler(e)}
+            onMouseEnter={(e) => mouseEnter(e, board)}
+            className="board"
+            key={board.id}
+          >
+            <div className="board__title">{board.title}</div>
+            {board.items.map((item, indexItem) => (
+              <Task
+                onDragOver={(e) => dragOverHandler(e)}
+                onDragLeave={(e) => dragLeaveHandler(e)}
+                onDragEnd={(e) => dragEndHandler(e)}
+                onDragEnter={(e) => dragEnterItem(e, board, item)}
+                onDragStart={(e) => dragStartHandler(e, board, item)}
+                onDrop={(e) => {
+                  if (isItem) {
+                    dropHandler(e, board, item);
+                  }
+                }}
+                draggable={true}
+                className="item"
+                key={item.id}
+                onMouseEnter={(e) => mouseEnter(e, board, item)}
+                onMouseLeave={(e) => mouseLeave(e, board, item)}
+                onRemove={() => removeItem(item.id, index)}
+                onEdit={() => editItem(item.id, index, indexItem)}
+              >
+                {item.title}
+              </Task>
+            ))}
+            <button onClick={() => removeBoard(board.id)}>Удалить доску</button>
+          </div>
+        );
+      })}
     </div>
   );
 };

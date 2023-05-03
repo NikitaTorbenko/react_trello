@@ -12,7 +12,6 @@ function App() {
           {
             id: 1,
             title: "Сделать",
-            order: 1,
             items: [
               { id: 1, title: "Пойти в магазин" },
               { id: 2, title: "Выкинуть мусор" },
@@ -22,7 +21,6 @@ function App() {
           {
             id: 2,
             title: "Выполняется",
-            order: 2,
             items: [
               { id: 4, title: "Код ревью" },
               { id: 5, title: "Задача на факториал" },
@@ -32,7 +30,6 @@ function App() {
           {
             id: 3,
             title: "Сделано",
-            order: 3,
             items: [
               { id: 7, title: "Снять видео" },
               { id: 8, title: "Смонтировать" },
@@ -46,14 +43,11 @@ function App() {
     localStorage.setItem("data", JSON.stringify(boards));
   }, [boards]);
 
-  const [isMenyatble, setIsMenyatble] = useState(true);
-
   function addBoard(value) {
     if (value) {
       const newBoard = {
         id: v4(),
         title: value,
-        order: boards.length + 1,
         items: [{ id: v4(), title: "Создана новая доска" }],
       };
 
@@ -83,10 +77,26 @@ function App() {
     }
   }
 
-  function removeItem(id) {
+  function removeItem(id, indexBoard) {
     setBoards((prev) => {
       const copyBoard = [...prev];
-      copyBoard[2].items = copyBoard[2].items.filter((item) => item.id !== id);
+      copyBoard[indexBoard].items = copyBoard[indexBoard].items.filter(
+        (item) => item.id !== id
+      );
+
+      return copyBoard;
+    });
+  }
+
+  // ======================================
+
+  function editItem(id, indexBoard, indexItem) {
+    setBoards((prev) => {
+      const copyBoard = [...prev];
+      console.log(indexBoard)
+      console.log(indexItem)
+
+      
 
       return copyBoard;
     });
@@ -94,19 +104,14 @@ function App() {
 
   return (
     <div className="wrap">
-      <Header
-        isMenyatble={isMenyatble}
-        setIsMenyatble={setIsMenyatble}
-        addTask={addItem}
-        addBoard={addBoard}
-      />
+      <Header addTask={addItem} addBoard={addBoard} />
       <Boards
-        isMenyatble={isMenyatble}
         boards={boards}
         setBoards={setBoards}
+        removeBoard={removeBoard}
         removeItem={removeItem}
         addItem={addItem}
-        removeBoard={removeBoard}
+        editItem={editItem}
       />
     </div>
   );

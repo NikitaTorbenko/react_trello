@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-const Header = ({ addTask, addBoard, isMenyatble, setIsMenyatble }) => {
+const Header = ({ addTask, addBoard }) => {
   const [valueItemInput, setValueItemInput] = useState("");
   const [valueBoardInput, setValueBoardInput] = useState("");
 
@@ -30,21 +30,6 @@ const Header = ({ addTask, addBoard, isMenyatble, setIsMenyatble }) => {
           placeholder="Текст задачи..."
         />
         <button onClick={handleAddTask}>Добавить</button>
-      </div>
-      <div onClick={() => setIsMenyatble(prev => !prev)} className="headerBlock h">
-        {isMenyatble ? (
-          <>
-            <h1 className="headerTitle">Менять задачи</h1>
-            <h2 className="headerTitle">/</h2>
-            <h3 className="headerTitle">Менять карточки</h3>
-          </>
-        ) : (
-          <>
-            <h1 className="headerTitle">Менять карточки</h1>
-            <h2 className="headerTitle">/</h2>
-            <h3 className="headerTitle">Менять задачи</h3>
-          </>
-        )}
       </div>
       <div className="headerBlock">
         <h1 className="headerTitle">Добавить доску</h1>
