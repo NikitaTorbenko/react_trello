@@ -3,40 +3,14 @@ import { v4 } from "uuid";
 import "./App.css";
 import Header from "./components/Header";
 import Boards from "./components/Boards";
+import { DEFAULT_DATA } from "./constants";
+import { removeElementById } from "./utils/boards";
 
 function App() {
   const [boards, setBoards] = useState(
     localStorage.getItem("data")
       ? JSON.parse(localStorage.getItem("data"))
-      : [
-          {
-            id: 1,
-            title: "Сделать",
-            items: [
-              { id: 1, title: "Пойти в магазин" },
-              { id: 2, title: "Выкинуть мусор" },
-              { id: 3, title: "Покушать" },
-            ],
-          },
-          {
-            id: 2,
-            title: "Выполняется",
-            items: [
-              { id: 4, title: "Код ревью" },
-              { id: 5, title: "Задача на факториал" },
-              { id: 6, title: "Задачи на фибоначи" },
-            ],
-          },
-          {
-            id: 3,
-            title: "Сделано",
-            items: [
-              { id: 7, title: "Снять видео" },
-              { id: 8, title: "Смонтировать" },
-              { id: 9, title: "Отрендерить" },
-            ],
-          },
-        ]
+      : DEFAULT_DATA
   );
 
   useEffect(() => {
@@ -56,7 +30,8 @@ function App() {
   }
 
   const removeBoard = (id) =>
-    setBoards((prev) => [...prev].filter((board) => board.id !== id));
+    setBoards((prev) => removeElementById([...prev], id))
+
 
   function addItem(valueInput) {
     if (valueInput) {
@@ -80,23 +55,7 @@ function App() {
   function removeItem(id, indexBoard) {
     setBoards((prev) => {
       const copyBoard = [...prev];
-      copyBoard[indexBoard].items = copyBoard[indexBoard].items.filter(
-        (item) => item.id !== id
-      );
-
-      return copyBoard;
-    });
-  }
-
-  // ======================================
-
-  function editItem(id, indexBoard, indexItem) {
-    setBoards((prev) => {
-      const copyBoard = [...prev];
-      console.log(indexBoard)
-      console.log(indexItem)
-
-      
+      copyBoard[indexBoard].items = removeElementById(copyBoard[indexBoard].items, id)
 
       return copyBoard;
     });
@@ -111,7 +70,6 @@ function App() {
         removeBoard={removeBoard}
         removeItem={removeItem}
         addItem={addItem}
-        editItem={editItem}
       />
     </div>
   );

@@ -1,6 +1,6 @@
 import React from "react";
 
-const Task = ({ children, onEdit, onRemove, onEditHandler, ...props }) => {
+const Task = ({ children, onRemove, ...props }) => {
   const [isEdit, setIsEdit] = React.useState(false);
   const [value, setValue] = React.useState(children);
 

@@ -1,24 +1,15 @@
 import React, { useState, useRef } from "react";
 import Task from "./Task";
 
-const Boards = ({ boards, setBoards, removeItem, removeBoard, editItem }) => {
+const Boards = ({ boards, setBoards, removeItem, removeBoard }) => {
   const [currentBoard, setCurrentBoard] = useState(null);
   const [currentItem, setCurrentItem] = useState(null);
-
-  function dragOverHandler(e) {
-    e.preventDefault();
-    // if (e.target.className === "item") {
-    //   e.target.style.boxShadow = "0 2px 3px gray";
-    // }
-  }
-
-  function dragLeaveHandler(e) {
-    // e.target.style.boxShadow = "none";
-  }
-
-  function dragEndHandler(e) {
-    // e.target.style.boxShadow = "none";
-  }
+  
+  const [isItem, setIsItem] = useState(false);
+  const [isBoard, setIsBoard] = useState(true);
+  
+  const currentBoardRef = useRef(null);
+  const hoverBoardRef = useRef(null);
 
   function dragStartHandler(e, board, item) {
     setCurrentBoard(board);
@@ -60,12 +51,6 @@ const Boards = ({ boards, setBoards, removeItem, removeBoard, editItem }) => {
     );
   }
 
-  //================================================
-
-  const [isItem, setIsItem] = useState(false);
-
-  const [isBoard, setIsBoard] = useState(true);
-
   const mouseEnter = (e, board, item) => {
     if (board && !item) {
       setIsBoard(true);
@@ -83,12 +68,9 @@ const Boards = ({ boards, setBoards, removeItem, removeBoard, editItem }) => {
     setIsItem(false);
   };
 
-  const dragEnter = (e, index) => setIsItem(false);
+  const dragEnter = (e) => setIsItem(false);
 
   const dragEnterItem = (e) => setTimeout(() => setIsItem(true), 0);
-
-  const currentBoardRef = useRef(null);
-  const hoverBoardRef = useRef(null);
 
   const dragStartHandlerCard = (e, board, indexBoard) => {
     if (!isItem) {
@@ -135,17 +117,13 @@ const Boards = ({ boards, setBoards, removeItem, removeBoard, editItem }) => {
                 }
               }
             }}
-            onDragOver={(e) => dragOverHandler(e)}
             onMouseEnter={(e) => mouseEnter(e, board)}
             className="board"
             key={board.id}
           >
             <div className="board__title">{board.title}</div>
-            {board.items.map((item, indexItem) => (
+            {board.items.map((item) => (
               <Task
-                onDragOver={(e) => dragOverHandler(e)}
-                onDragLeave={(e) => dragLeaveHandler(e)}
-                onDragEnd={(e) => dragEndHandler(e)}
                 onDragEnter={(e) => dragEnterItem(e, board, item)}
                 onDragStart={(e) => dragStartHandler(e, board, item)}
                 onDrop={(e) => {
@@ -159,7 +137,6 @@ const Boards = ({ boards, setBoards, removeItem, removeBoard, editItem }) => {
                 onMouseEnter={(e) => mouseEnter(e, board, item)}
                 onMouseLeave={(e) => mouseLeave(e, board, item)}
                 onRemove={() => removeItem(item.id, index)}
-                onEdit={() => editItem(item.id, index, indexItem)}
               >
                 {item.title}
               </Task>

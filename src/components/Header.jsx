@@ -1,10 +1,11 @@
 import React, { useState } from "react";
+import AddingBlock from "./AddingBlock";
 
 const Header = ({ addTask, addBoard }) => {
   const [valueItemInput, setValueItemInput] = useState("");
   const [valueBoardInput, setValueBoardInput] = useState("");
 
-  const handleChange = (e) => setValueItemInput(e.target.value);
+  const handleChangeItem = (e) => setValueItemInput(e.target.value);
 
   const handleChangeBoard = (e) => setValueBoardInput(e.target.value);
 
@@ -20,28 +21,20 @@ const Header = ({ addTask, addBoard }) => {
 
   return (
     <div className="header">
-      <div className="headerBlock">
-        <h1 className="headerTitle">Добавить задачу</h1>
-        <input
-          value={valueItemInput}
-          onChange={handleChange}
-          className="headerInput"
-          type="text"
-          placeholder="Текст задачи..."
-        />
-        <button onClick={handleAddTask}>Добавить</button>
-      </div>
-      <div className="headerBlock">
-        <h1 className="headerTitle">Добавить доску</h1>
-        <input
-          value={valueBoardInput}
-          onChange={handleChangeBoard}
-          className="headerInput"
-          type="text"
-          placeholder="Название доски..."
-        />
-        <button onClick={handleAddBoard}>Добавить</button>
-      </div>
+      <AddingBlock
+        title={'Добавить задачу'}
+        placeholderContent={'Текст задачи...'}
+        valueInput={valueItemInput}
+        handleChange={handleAddTask}
+        handleAdd={handleChangeItem}
+      />
+      <AddingBlock
+        title={'Добавить доску'}
+        placeholderContent={'Название доски...'}
+        valueInput={valueBoardInput}
+        handleChange={handleChangeBoard}
+        handleAdd={handleAddBoard}
+      />
     </div>
   );
 };
